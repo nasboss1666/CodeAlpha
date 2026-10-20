@@ -1,0 +1,108 @@
+import csv
+
+def stock_portfolio_tracker():
+    # 1. Hardcoded dictionary defining stock prices (in USD)
+    stock_prices = {
+        "AAPL": 180.00,
+        "TSLA": 250.00,
+        "GOOGL": 140.00,
+        "AMZN": 175.00,
+        "MSFT": 400.00,
+        "NVDA": 120.00
+    }
+
+    portfolio = []
+    total_investment = 0.0
+
+    print("=" * 45)
+    print("      WELCOME TO STOCK PORTFOLIO TRACKER     ")
+    print("=" * 45)
+    print("Available stocks in database:", ", ".join(stock_prices.keys()))
+    print("-" * 45)
+
+    # 2. User Input Loop
+    while True:
+        symbol = input("\nEnter Stock Symbol (or type 'done' to finish): ").strip().upper()
+        
+        if symbol == 'DONE':
+            break
+
+        if symbol not in stock_prices:
+            print(f"❌ '{symbol}' is not in our database. Please choose from: {', '.join(stock_prices.keys())}")
+            continue
+
+        try:
+            quantity = int(input(f"Enter quantity of {symbol}: "))
+            if quantity <= 0:
+                print("❌ Quantity must be greater than zero.")
+                continue
+        except ValueError:
+            print("❌ Invalid input! Please enter a whole number for quantity.")
+            continue
+
+        price = stock_prices[symbol]
+        total_value = quantity * price
+        
+        # Save holding details
+        portfolio.append({
+            "symbol": symbol,
+            "quantity": quantity,
+            "price": price,
+            "total": total_value
+        })
+
+    # If user entered no stocks
+    if not portfolio:
+        print("\nNo stocks added. Exiting tracker.")
+        return
+
+    # 3. Display Investment Summary
+    print("\n" + "=" * 45)
+    print("             PORTFOLIO SUMMARY               ")
+    print("=" * 45)
+    print(f"{'Stock':<10}{'Qty':<10}{'Price ($)':<12}{'Total ($)':<12}")
+    print("-" * 45)
+
+    for item in portfolio:
+        total_investment += item['total']
+        print(f"{item['symbol']:<10}{item['quantity']:<10}{item['price']:<12.2f}{item['total']:<12.2f}")
+
+    print("-" * 45)
+    print(f"TOTAL PORTFOLIO VALUE: ${total_investment:,.2f}")
+    print("=" * 45)
+
+    # 4. Optional File Export
+    save_choice = input("\nWould you like to save this portfolio? (txt/csv/no): ").strip().lower()
+
+    if save_choice == 'txt':
+        filename = "portfolio_summary.txt"
+        with open(filename, "w") as file:
+            file.write("=" * 45 + "\n")
+            file.write("             PORTFOLIO SUMMARY               \n")
+            file.write("=" * 45 + "\n")
+            file.write(f"{'Stock':<10}{'Qty':<10}{'Price ($)':<12}{'Total ($)':<12}\n")
+            file.write("-" * 45 + "\n")
+            for item in portfolio:
+                file.write(f"{item['symbol']:<10}{item['quantity']:<10}{item['price']:<12.2f}{item['total']:<12.2f}\n")
+            file.write("-" * 45 + "\n")
+            file.write(f"TOTAL PORTFOLIO VALUE: ${total_investment:,.2f}\n")
+            file.write("=" * 45 + "\n")
+        print(f"✅ Portfolio successfully saved to '{filename}'!")
+
+    elif save_choice == 'csv':
+        filename = "portfolio_summary.csv"
+        with open(filename, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Symbol", "Quantity", "Price ($)", "Total Value ($)"])
+            for item in portfolio:
+                writer.writerow([item['symbol'], item['quantity'], item['price'], item['total']])
+            writer.writerow([])
+            writer.writerow(["TOTAL PORTFOLIO VALUE", "", "", total_investment])
+        print(f"✅ Portfolio successfully saved to '{filename}'!")
+
+    else:
+        print("Portfolio not saved to file.")
+
+# Run the program
+if __name__ == "__main__":
+    stock_portfolio_tracker()
